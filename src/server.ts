@@ -1,14 +1,11 @@
 import app from './app';
-import http from 'http';
-import { AddressInfo } from 'net';
+import connectDB from './db';
 
-const server = http.createServer(app);
-const port = process.env.PORT || 3000;
-
-server.listen(port, () => {
-    console.log(
-        `Server running at http://localhost:${
-            (server.address() as AddressInfo).port
-        }`
-    );
-});
+connectDB()
+    .then(() => {
+        app.listen(3000, () => console.log('Server running on port 3000'));
+    })
+    .catch((e) => {
+        console.error(`Error: ${(e as Error).message}`);
+        process.exit(1);
+    });
