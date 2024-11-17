@@ -1,0 +1,10 @@
+import { Router } from 'express';
+import { login, signup } from '../controllers/user.controller';
+import { createContent, getContent } from '../controllers/content.controller';
+const router = Router();
+router.route('/login').post(login);
+router.route('/signup').post(signup);
+router.route('/content').get(getContent);
+router.route('/content').post(createContent);
+router.route('/brain/share').post(createContent);
+export default router;
