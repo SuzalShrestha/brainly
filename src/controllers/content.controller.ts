@@ -12,7 +12,6 @@ const createContent = asyncHandler(async (req: Request, res: Response) => {
             link,
             type,
             tags,
-            //@ts-ignore
             user: req.user?._id,
         });
         return res.status(200).json({ message: 'Content created' });
@@ -23,7 +22,6 @@ const createContent = asyncHandler(async (req: Request, res: Response) => {
 const getContent = asyncHandler(async (req: Request, res: Response) => {
     try {
         const content = await Content.find({
-            //@ts-ignore
             user: req.user._id,
         });
         return res.status(200).json({ content });

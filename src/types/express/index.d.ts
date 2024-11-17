@@ -1,9 +1,9 @@
-import { UserType } from '../schema';
+import { Document } from 'mongoose';
 
 declare global {
     namespace Express {
         interface Request {
-            user: UserType;
+            user: Document;
         }
     }
 }

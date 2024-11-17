@@ -11,7 +11,6 @@ const createShare = asyncHandler(async (req: Request, res: Response) => {
         const uuidHash = uuidv4();
         await Share.create({
             hash: uuidHash,
-            //@ts-ignore
             user: req.user?._id,
         });
         return res.status(200).json({ hash: uuidHash });
