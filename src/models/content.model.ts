@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-const contentSchema = new mongoose.Schema(
+export const contentSchema = new mongoose.Schema(
     {
         title: {
             type: String,

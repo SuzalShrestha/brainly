@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import asyncHandler from '../utils/asynchandler';
 import jwt from 'jsonwebtoken';
+import { User } from '../models/user.model';
 const verifyToken = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -14,9 +15,16 @@ const verifyToken = asyncHandler(
             if (!isVerified) {
                 return res.status(401).json({ message: 'Unauthorized' });
             }
-            const user = jwt.decode(req.cookies.token);
-            if (!user) {
+            const decodeToken = jwt.decode(req.cookies.token);
+            if (!decodeToken) {
                 return res.status(401).json({ message: 'Unauthorized' });
+            }
+            const decodedToken = decodeToken as { _id: string };
+            const user = await User.findById(decodedToken._id).select(
+                '-password'
+            );
+            if (!user) {
+                return res.status(401).json({ message: 'User not found' });
             }
             req.user = user;
             next();
