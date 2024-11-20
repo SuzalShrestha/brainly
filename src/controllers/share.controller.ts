@@ -12,6 +12,7 @@ const shareContent = asyncHandler(async (req: Request, res: Response) => {
         const uuidHash = uuidv4();
         await Share.create({
             hash: uuidHash,
+            //@ts-ignore
             user: req.user?._id,
         });
         return res.status(200).json({ hash: uuidHash });
@@ -31,6 +32,7 @@ const getSharedContent = asyncHandler(async (req: Request, res: Response) => {
         if (!sharedContent) {
             return res.status(404).json({ message: 'Content not found' });
         }
+        //@ts-ignore
         if (sharedContent.user.toString() === req.user?._id!.toString()) {
             return res.status(200).json({ message: 'Content shared by you' });
         }

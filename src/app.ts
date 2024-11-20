@@ -1,8 +1,14 @@
 import { configDotenv } from 'dotenv';
 import express from 'express';
+import cors from 'cors';
 import v1 from './routes/v1.route';
 import cookieParser from 'cookie-parser';
 const app = express();
+app.use(
+    cors({
+        origin: 'http://localhost:3001',
+    })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

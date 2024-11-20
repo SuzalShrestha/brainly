@@ -19,8 +19,12 @@ const login = asyncHandler(async (req: Request, res: Response) => {
                 .json({ message: 'Invalid username or password' });
         }
         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET!);
+        const option = {
+            httpOnly: true,
+            secure: true,
+        };
         return res
-            .cookie('token', token)
+            .cookie('token', token, option)
             .status(200)
             .json({ message: 'Login successful' });
     } catch (error) {

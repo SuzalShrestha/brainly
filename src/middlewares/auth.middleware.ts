@@ -26,6 +26,7 @@ const verifyToken = asyncHandler(
             if (!user) {
                 return res.status(401).json({ message: 'User not found' });
             }
+            //@ts-ignore
             req.user = user;
             next();
         } catch (error) {
