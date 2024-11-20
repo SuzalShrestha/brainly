@@ -25,6 +25,7 @@ const login = asyncHandler(async (req: Request, res: Response) => {
             httpOnly: true,
             secure: true,
         };
+        console.log('testing purpose');
         return res
             .cookie('token', token, option)
             .status(200)
