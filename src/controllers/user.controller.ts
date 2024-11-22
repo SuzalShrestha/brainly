@@ -5,8 +5,16 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 const login = asyncHandler(async (req: Request, res: Response) => {
     try {
-        const { userName, password } = req.body;
-        const user = await User.findOne({ userName });
+        const { userName, email, password } = req.body;
+        if (!userName && !email) {
+            return res
+                .status(400)
+                .json({ message: 'Username or email is missing' });
+        }
+
+        const user = await User.findOne({
+            $or: [{ userName }, { email }],
+        });
         if (!user) {
             return res
                 .status(401)
@@ -28,7 +36,18 @@ const login = asyncHandler(async (req: Request, res: Response) => {
         return res
             .cookie('token', token, option)
             .status(200)
-            .json({ message: 'Login successful' });
+            .json({
+                data: {
+                    user: {
+                        _id: user._id,
+                        userName: user.userName,
+                        email: user.email,
+                        name: user.name,
+                        createdAt: user.createdAt,
+                        updatedAt: user.updatedAt,
+                    },
+                },
+            });
     } catch (error) {
         throw error;
     }
