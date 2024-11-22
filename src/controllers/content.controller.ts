@@ -28,7 +28,7 @@ const getContent = asyncHandler(async (req: Request, res: Response) => {
             //@ts-ignore
             user: req.user._id,
         });
-        return res.status(200).json({ content });
+        return res.status(200).json({ data: content });
     } catch (error) {
         throw error;
     }
