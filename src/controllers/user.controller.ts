@@ -29,13 +29,15 @@ const login = asyncHandler(async (req: Request, res: Response) => {
         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET!, {
             expiresIn: '1d',
         });
-        const option = {
-            httpOnly: true,
-            secure: true,
-            maxAge: 24 * 60 * 60 * 1000,
-        };
         return res
-            .cookie('token', token, option)
+            .cookie('token', token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                maxAge: 1000 * 60 * 60 * 24,
+                sameSite:
+                    process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+                priority: 'high',
+            })
             .status(200)
             .json({
                 data: {
