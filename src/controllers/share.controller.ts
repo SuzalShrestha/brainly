@@ -15,7 +15,12 @@ const shareContent = asyncHandler(async (req: Request, res: Response) => {
             //@ts-ignore
             user: req.user?._id,
         });
-        return res.status(200).json({ hash: uuidHash });
+        return res.status(200).json({
+            data: {
+                hash: uuidHash,
+                shareUrl: `${process.env.BASE_URL}/brain/${uuidHash}`,
+            },
+        });
     } catch (error) {
         throw error;
     }
