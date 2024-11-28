@@ -77,15 +77,17 @@ const signup = asyncHandler(async (req: Request, res: Response) => {
             });
         }
 
-        const newUser = await User.create({
+        await User.create({
             userName,
             password: hash,
             email,
             name,
         });
-
-        const user = await User.findById(newUser?._id).select('-password');
-        return res.status(201).json(user);
+        return res.status(201).json({
+            data: {
+                message: 'User created successfully',
+            },
+        });
     } catch (error) {
         throw error;
     }
