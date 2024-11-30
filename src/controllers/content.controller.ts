@@ -50,4 +50,23 @@ const deleteContent = asyncHandler(async (req: Request, res: Response) => {
         throw error;
     }
 });
-export { createContent, getContent, deleteContent };
+const favoriteContent = asyncHandler(async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return res.status(400).json({ message: 'Missing content id' });
+        }
+        //toggle isFavorite
+        const content = await Content.findById(id);
+        if (!content) {
+            return res.status(404).json({ message: 'Content not found' });
+        }
+        await Content.findByIdAndUpdate(id, {
+            isFavorite: !content.isFavorite,
+        });
+        return res.status(200).json({ data: { message: 'Content favorited' } });
+    } catch (error) {
+        throw error;
+    }
+});
+export { createContent, getContent, deleteContent, favoriteContent };

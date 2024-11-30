@@ -15,6 +15,15 @@ const shareContent = asyncHandler(async (req: Request, res: Response) => {
             //@ts-ignore
             user: req.user?._id,
         });
+        await Content.updateMany(
+            {
+                //@ts-ignore
+                user: req.user?._id,
+            },
+            {
+                isShared: true,
+            }
+        );
         return res.status(200).json({
             data: {
                 hash: uuidHash,

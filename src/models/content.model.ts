@@ -27,6 +27,14 @@ export const contentSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        isFavorite: {
+            type: Boolean,
+            default: false,
+        },
+        isShared: {
+            type: Boolean,
+            default: false,
+        },
     },
     {
         timestamps: true,
