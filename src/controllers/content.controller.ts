@@ -33,4 +33,21 @@ const getContent = asyncHandler(async (req: Request, res: Response) => {
         throw error;
     }
 });
-export { createContent, getContent };
+const deleteContent = asyncHandler(async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return res.status(400).json({ message: 'Missing content id' });
+        }
+        const content = await Content.deleteOne({
+            _id: id,
+        });
+        if (content.deletedCount === 0) {
+            return res.status(404).json({ message: 'Content not found' });
+        }
+        return res.status(200).json({ data: { message: 'Content deleted' } });
+    } catch (error) {
+        throw error;
+    }
+});
+export { createContent, getContent, deleteContent };
