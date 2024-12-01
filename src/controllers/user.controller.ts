@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import asyncHandler from '../utils/asynchandler';
 import { User } from '../models/user.model';
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 const login = asyncHandler(async (req: Request, res: Response) => {
     try {
@@ -17,7 +16,8 @@ const login = asyncHandler(async (req: Request, res: Response) => {
                 .status(401)
                 .json({ message: 'Invalid username or password' });
         }
-        const isValid = bcrypt.compareSync(password, user?.password!);
+        //@ts-ignore
+        const isValid = await user.isPasswordCorrect(password);
         if (!isValid) {
             return res
                 .status(401)
@@ -56,16 +56,17 @@ const login = asyncHandler(async (req: Request, res: Response) => {
 const signup = asyncHandler(async (req: Request, res: Response) => {
     try {
         const { userName, password, email, name } = req.body;
-        if (!userName || !password) {
+        if (!userName || !password || !email || !name) {
             return res
                 .status(400)
                 .json({ message: 'Username or password is missing' });
         }
-        const hash = bcrypt.hashSync(password, 10);
+        if (password.length < 8) {
+            return res.status(400).json({ message: 'Password is too short' });
+        }
         const existingUser = await User.findOne({
             $or: [{ userName }, { email }],
         });
-
         if (existingUser) {
             return res.status(400).json({
                 message:
@@ -77,7 +78,7 @@ const signup = asyncHandler(async (req: Request, res: Response) => {
 
         await User.create({
             userName,
-            password: hash,
+            password,
             email,
             name,
         });
