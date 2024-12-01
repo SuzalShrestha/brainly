@@ -7,11 +7,11 @@ export const contentSchema = new mongoose.Schema(
         },
         link: {
             type: String,
-            required: true,
+            required: false,
         },
         type: {
             type: String,
-            enum: ['youtube', 'tweet', 'document', 'link'],
+            enum: ['video', 'tweet', 'document', 'link'],
             required: true,
         },
         tags: {

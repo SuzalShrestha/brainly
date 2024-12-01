@@ -4,7 +4,7 @@ import { Content } from '../models/content.model';
 const createContent = asyncHandler(async (req: Request, res: Response) => {
     try {
         const { title, link, type, tags, content } = req.body;
-        if (!title || !link || !type || !tags || !content) {
+        if (!title || !type || !tags || !content) {
             return res.status(400).json({ message: 'Missing content details' });
         }
         await Content.create({
