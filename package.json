@@ -1,10 +1,10 @@
 {
   "name": "brainly",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "public/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon public/server.ts",
+    "dev": "nodemon public/server.js",
     "start": "node public/server.js",
     "build": "tsc -b"
   },
