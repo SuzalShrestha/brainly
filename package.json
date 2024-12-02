@@ -1,12 +1,13 @@
 {
   "name": "brainly",
   "version": "1.0.0",
-  "main": "public/server.js",
+  "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon public/server.js",
-    "start": "node public/server.js",
-    "build": "tsc -b"
+    "dev": "nodemon src/server.ts",
+    "start": "ts-node src/server.ts",
+    "build": "tsc -b",
+    "vercel-build": "echo hello"
   },
   "keywords": [],
   "author": "",
