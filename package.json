@@ -4,8 +4,8 @@
   "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon src/server.ts",
-    "start": "ts-node src/server.ts",
+    "dev": "nodemon public/server.ts",
+    "start": "node public/server.js",
     "build": "tsc -b",
     "vercel-build": "echo hello"
   },
