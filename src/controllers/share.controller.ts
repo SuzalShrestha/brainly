@@ -38,22 +38,28 @@ const getSharedContent = asyncHandler(async (req: Request, res: Response) => {
     try {
         const { hash } = req.params;
         if (!hash) {
-            return res.status(400).json({ message: 'Invalid hash' });
+            return res.status(400).json({ error: { message: 'Invalid hash' } });
         }
         const sharedContent = await Share.findOne({
             hash,
         });
         if (!sharedContent) {
-            return res.status(404).json({ message: 'Content not found' });
+            return res
+                .status(404)
+                .json({ error: { message: 'Content not found' } });
         }
         //@ts-ignore
-        if (sharedContent.user.toString() === req.user?._id!.toString()) {
-            return res.status(200).json({ message: 'Content shared by you' });
-        }
+        // if (sharedContent.user.toString() === req.user?._id!.toString()) {
+        //     return res.status(200).json({
+        //         data: [],
+        //         error: { message: 'Content shared by you' },
+        //     });
+        // }
         const content = await Content.find({
             user: sharedContent.user,
+            isShared: true,
         });
-        return res.status(200).json({ content });
+        return res.status(200).json({ data: content });
     } catch (error) {
         throw error;
     }

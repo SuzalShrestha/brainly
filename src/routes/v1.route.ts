@@ -5,6 +5,7 @@ import {
     deleteContent,
     favoriteContent,
     getContent,
+    updateContent,
 } from '../controllers/content.controller';
 import verifyToken from '../middlewares/auth.middleware';
 import {
@@ -20,4 +21,5 @@ router.route('/content/:id').delete(verifyToken, deleteContent);
 router.route('/favorite/:id').post(verifyToken, favoriteContent);
 router.route('/brain/share').post(verifyToken, shareContent);
 router.route('/brain/:hash').get(verifyToken, getSharedContent);
+router.route('/content/:id').put(verifyToken, updateContent);
 export default router;

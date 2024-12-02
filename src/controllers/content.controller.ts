@@ -69,4 +69,29 @@ const favoriteContent = asyncHandler(async (req: Request, res: Response) => {
         throw error;
     }
 });
-export { createContent, getContent, deleteContent, favoriteContent };
+const updateContent = asyncHandler(async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return res.status(400).json({ message: 'Missing content id' });
+        }
+        const { title, link, type, tags, content } = req.body;
+        await Content.findByIdAndUpdate(id, {
+            title,
+            link,
+            type,
+            tags,
+            content,
+        });
+        return res.status(200).json({ data: { message: 'Content updated' } });
+    } catch (error) {
+        throw error;
+    }
+});
+export {
+    createContent,
+    getContent,
+    deleteContent,
+    favoriteContent,
+    updateContent,
+};
