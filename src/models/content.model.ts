@@ -40,4 +40,5 @@ export const contentSchema = new mongoose.Schema(
         timestamps: true,
     }
 );
+contentSchema.index({ title: 'text', content: 'text', link: 'text' });
 export const Content = mongoose.model('Content', contentSchema);

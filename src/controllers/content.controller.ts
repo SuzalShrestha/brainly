@@ -88,10 +88,25 @@ const updateContent = asyncHandler(async (req: Request, res: Response) => {
         throw error;
     }
 });
+const searchContent = asyncHandler(async (req: Request, res: Response) => {
+    try {
+        const { q } = req.query;
+        if (!q) {
+            return res.status(400).json({ message: 'Missing search query' });
+        }
+        const content = await Content.find({
+            $text: { $search: q as string },
+        });
+        return res.status(200).json({ data: content });
+    } catch (error) {
+        throw error;
+    }
+});
 export {
     createContent,
     getContent,
     deleteContent,
     favoriteContent,
     updateContent,
+    searchContent,
 };
