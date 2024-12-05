@@ -97,7 +97,9 @@ const searchContent = asyncHandler(async (req: Request, res: Response) => {
         const content = await Content.find({
             $text: { $search: q as string },
         });
-        return res.status(200).json({ data: content });
+        return res
+            .status(200)
+            .json({ data: { data: content, total: content.length } });
     } catch (error) {
         throw error;
     }
