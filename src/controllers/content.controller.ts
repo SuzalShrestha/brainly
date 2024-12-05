@@ -95,6 +95,8 @@ const searchContent = asyncHandler(async (req: Request, res: Response) => {
             return res.status(400).json({ message: 'Missing search query' });
         }
         const content = await Content.find({
+            //@ts-ignore
+            user: req.user._id,
             $text: { $search: q as string },
         });
         return res
