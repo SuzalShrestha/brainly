@@ -94,10 +94,13 @@ const searchContent = asyncHandler(async (req: Request, res: Response) => {
         if (!q) {
             return res.status(400).json({ message: 'Missing search query' });
         }
+        const escapeRegex = (text: string) =>
+            text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+        const regex = new RegExp(escapeRegex(q as string), 'i');
         const content = await Content.find({
             //@ts-ignore
             user: req.user._id,
-            $text: { $search: q as string },
+            $or: [{ title: regex }, { link: regex }, { content: regex }],
         });
         return res
             .status(200)
