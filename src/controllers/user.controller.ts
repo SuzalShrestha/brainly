@@ -2,6 +2,19 @@ import { Request, Response } from 'express';
 import asyncHandler from '../utils/asynchandler';
 import { User } from '../models/user.model';
 import jwt from 'jsonwebtoken';
+const generateAccessAndRefreshToken = async (userId: string) => {
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            throw new Error('User not found');
+        }
+        const accessToken = await user.generateAccessToken();
+        const refreshToken = await user.generateRefreshToken();
+        return { accessToken, refreshToken };
+    } catch (error) {
+        throw error;
+    }
+};
 const login = asyncHandler(async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
@@ -23,32 +36,39 @@ const login = asyncHandler(async (req: Request, res: Response) => {
                 .status(401)
                 .json({ message: 'Invalid username or password' });
         }
-        const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET!, {
-            expiresIn: '1d',
+        const { accessToken, refreshToken } =
+            await generateAccessAndRefreshToken(user?._id);
+        user.refreshToken = refreshToken;
+        await user.save({
+            validateBeforeSave: false,
         });
-        return res
-            .cookie('token', token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                maxAge: 1000 * 60 * 60 * 24,
-                sameSite:
-                    process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-                priority: 'high',
-            })
-            .status(200)
-            .json({
-                data: {
-                    user: {
-                        _id: user._id,
-                        userName: user.userName,
-                        email: user.email,
-                        name: user.name,
-                        token: token,
-                        createdAt: user.createdAt,
-                        updatedAt: user.updatedAt,
+        return (
+            res
+                //cookie are handled in apiClient middlware and authjs sessions
+                // .cookie('token', token, {
+                //     httpOnly: true,
+                //     secure: process.env.NODE_ENV === 'production',
+                //     maxAge: 1000 * 60 * 60 * 24,
+                //     sameSite:
+                //         process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+                //     priority: 'high',
+                // })
+                .status(200)
+                .json({
+                    data: {
+                        user: {
+                            _id: user._id,
+                            userName: user.userName,
+                            email: user.email,
+                            name: user.name,
+                            accessToken,
+                            refreshToken,
+                            createdAt: user.createdAt,
+                            updatedAt: user.updatedAt,
+                        },
                     },
-                },
-            });
+                })
+        );
     } catch (error) {
         throw error;
     }
