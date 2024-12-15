@@ -1,5 +1,9 @@
 import { Router } from 'express';
-import { login, signup } from '../controllers/user.controller';
+import {
+    login,
+    refreshAccessToken,
+    signup,
+} from '../controllers/user.controller';
 import {
     createContent,
     deleteContent,
@@ -16,6 +20,7 @@ import {
 const router = Router();
 router.route('/login').post(login);
 router.route('/signup').post(signup);
+router.route('/refresh').post(refreshAccessToken);
 router.use(verifyToken);
 router.route('/content').get(getContent);
 router.route('/content').post(createContent);
@@ -25,4 +30,5 @@ router.route('/favorite/:id').post(favoriteContent);
 router.route('/brain/share').post(shareContent);
 router.route('/brain/:hash').get(getSharedContent);
 router.route('/content/:id').put(updateContent);
+
 export default router;

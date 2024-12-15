@@ -1,5 +1,16 @@
-import mongoose from 'mongoose';
-export const contentSchema = new mongoose.Schema(
+import { Schema, model } from 'mongoose';
+interface IContent extends Document {
+    title: string;
+    link: string;
+    type: string;
+    tags: string[];
+    user: Schema.Types.ObjectId;
+    content: string;
+    isFavorite: boolean;
+    isShared: boolean;
+}
+
+export const contentSchema = new Schema<IContent>(
     {
         title: {
             type: String,
@@ -19,7 +30,7 @@ export const contentSchema = new mongoose.Schema(
             required: true,
         },
         user: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'User',
             required: true,
         },
@@ -41,4 +52,4 @@ export const contentSchema = new mongoose.Schema(
     }
 );
 contentSchema.index({ title: 'text', content: 'text', link: 'text' });
-export const Content = mongoose.model('Content', contentSchema);
+export const Content = model<IContent>('Content', contentSchema);
