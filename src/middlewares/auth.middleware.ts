@@ -13,20 +13,18 @@ const verifyToken = asyncHandler(
             if (authHeader && authHeader.startsWith('Bearer ')) {
                 token = authHeader.split(' ')[1];
             }
-
             // If no Bearer token, check for cookie
-            if (!token && req.cookies.token) {
+            if (!token && req.cookies.accessToken) {
                 token = req.cookies.token;
             }
-
             if (!token) {
-                return res
-                    .status(401)
-                    .json({ message: 'Unauthorized - No token provided' });
+                return res.status(401).json({ message: 'Unauthorized' });
             }
-
             try {
-                const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+                const decoded = jwt.verify(
+                    token,
+                    process.env.ACCESS_TOKEN_SECRET!
+                ) as {
                     _id: string;
                 };
 
@@ -35,18 +33,16 @@ const verifyToken = asyncHandler(
                 );
 
                 if (!user) {
-                    return res.status(401).json({ message: 'User not found' });
+                    return res.status(401).json({ message: 'Unauthorized' });
                 }
                 //@ts-ignore
                 req.user = user;
                 next();
             } catch (error) {
-                return res
-                    .status(401)
-                    .json({ message: 'Invalid or expired token' });
+                return res.status(401).json({ message: 'Unauthorized' });
             }
         } catch (error) {
-            throw error;
+            return res.status(401).json({ message: 'Unauthorized' });
         }
     }
 );
