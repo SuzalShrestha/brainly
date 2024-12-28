@@ -1,12 +1,5 @@
-import { Document } from 'mongoose';
-import { UserType } from '../schemas';
-
-declare global {
-    namespace Express {
-        interface Request {
-            user: Document & UserType;
-        }
-    }
+import { Request } from 'express';
+import { type User } from '../../models/User';
+export interface RequestWithUser extends Request {
+    user?: User;
 }
-
-export {};
