@@ -1,10 +1,11 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import asyncHandler from '../utils/asynchandler';
 import { Share } from '../models/share.model';
 import { v4 as uuidv4 } from 'uuid';
 import { Content } from '../models/content.model';
-const shareContent = asyncHandler(async (req: Request, res: Response) => {
-    try {
+import { RequestWithUser } from '../types/express';
+const shareContent = asyncHandler(
+    async (req: RequestWithUser, res: Response) => {
         const { share } = req.body;
         if (!share) {
             return res.status(400).json({ message: 'Link not shareable' });
@@ -12,12 +13,11 @@ const shareContent = asyncHandler(async (req: Request, res: Response) => {
         const uuidHash = uuidv4();
         await Share.create({
             hash: uuidHash,
-            //@ts-ignore
+
             user: req.user?._id,
         });
         await Content.updateMany(
             {
-                //@ts-ignore
                 user: req.user?._id,
             },
             {
@@ -30,12 +30,10 @@ const shareContent = asyncHandler(async (req: Request, res: Response) => {
                 shareUrl: `${process.env.BASE_URL}/brain/${uuidHash}`,
             },
         });
-    } catch (error) {
-        throw error;
     }
-});
-const getSharedContent = asyncHandler(async (req: Request, res: Response) => {
-    try {
+);
+const getSharedContent = asyncHandler(
+    async (req: RequestWithUser, res: Response) => {
         const { hash } = req.params;
         if (!hash) {
             return res.status(400).json({ error: { message: 'Invalid hash' } });
@@ -48,7 +46,6 @@ const getSharedContent = asyncHandler(async (req: Request, res: Response) => {
                 .status(404)
                 .json({ error: { message: 'Content not found' } });
         }
-        //@ts-ignore
         // if (sharedContent.user.toString() === req.user?._id!.toString()) {
         //     return res.status(200).json({
         //         data: [],
@@ -60,8 +57,6 @@ const getSharedContent = asyncHandler(async (req: Request, res: Response) => {
             isShared: true,
         });
         return res.status(200).json({ data: content });
-    } catch (error) {
-        throw error;
     }
-});
+);
 export { shareContent, getSharedContent };
