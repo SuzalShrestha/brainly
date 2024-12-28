@@ -120,10 +120,7 @@ const refreshAccessToken = asyncHandler(async (req: Request, res: Response) => {
     try {
         const decodedToken = jwt.verify(
             incomingRefreshToken,
-            process.env.REFRESH_TOKEN_SECRET!,
-            {
-                ignoreExpiration: true,
-            }
+            process.env.REFRESH_TOKEN_SECRET!
         ) as RefreshPayloadWithId;
         const user = await User.findById(decodedToken._id);
 
