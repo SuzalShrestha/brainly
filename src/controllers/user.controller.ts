@@ -151,5 +151,59 @@ const refreshAccessToken = asyncHandler(async (req: Request, res: Response) => {
         );
     }
 });
-
-export { login, signup, refreshAccessToken };
+const googleLogin = asyncHandler(async (req: Request, res: Response) => {
+    const { accessToken: GAccessToken } = req.query;
+    const IsGoogleAccountExist = await fetch(
+        'https://www.googleapis.com/oauth2/v1/userinfo?alt=json',
+        {
+            headers: {
+                Authorization: `Bearer ${GAccessToken}`,
+            },
+        }
+    );
+    const googleUser = await IsGoogleAccountExist.json();
+    if (!googleUser) {
+        throw new ApiError(404, 'Invalid Access Token');
+    }
+    const user = await User.findOne({ email: googleUser.email });
+    let newUser;
+    if (!user) {
+        await User.create(
+            {
+                email: googleUser.email,
+                password: googleUser.id,
+                userName: googleUser.name.toLowerCase() + googleUser.id,
+            },
+            {
+                validateBeforeSave: false,
+            }
+        );
+        newUser = await User.findOne({ email: googleUser.email });
+    } else {
+        newUser = user;
+    }
+    const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(
+        newUser!._id.toString()
+    );
+    return res
+        .cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 1000 * 60 * 60 * 24 * 7,
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            priority: 'high',
+        })
+        .status(200)
+        .json({
+            data: {
+                user: {
+                    _id: newUser?._id,
+                    email: newUser?.email,
+                    accessToken: accessToken,
+                    //sent to nextjs to store in cookie manually only for login
+                    refreshToken: refreshToken,
+                },
+            },
+        });
+});
+export { login, signup, refreshAccessToken, googleLogin };
