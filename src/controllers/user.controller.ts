@@ -131,16 +131,18 @@ const refreshAccessToken = asyncHandler(async (req: Request, res: Response) => {
             throw new ApiError(403, 'Refresh token is expired or used');
         }
 
-        const options = {
-            httpOnly: true,
-            secure: true,
-        };
-
         const { accessToken, refreshToken: newRefreshToken } =
             await generateAccessAndRefereshTokens(user._id.toString());
         return res
             .status(200)
-            .cookie('refreshToken', newRefreshToken, options)
+            .cookie('refreshToken', newRefreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                maxAge: 1000 * 60 * 60 * 24 * 7,
+                sameSite:
+                    process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+                priority: 'high',
+            })
             .json(
                 new ApiResponse(200, { accessToken }, 'Access token refreshed')
             );
