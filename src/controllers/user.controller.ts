@@ -7,7 +7,7 @@ import jwt from 'jsonwebtoken';
 interface RefreshPayloadWithId {
     _id: string;
 }
-const generateAccessAndRefereshTokens = async (userId: string) => {
+const generateAccessAndRefreshTokens = async (userId: string) => {
     try {
         const user = await User.findById(userId);
         if (!user) {
@@ -26,23 +26,6 @@ const generateAccessAndRefereshTokens = async (userId: string) => {
         throw new Error(
             'Something went wrong while generating referesh and access tokens' +
                 error
-        );
-    }
-};
-const generateAccessToken = async (userId: string) => {
-    try {
-        const user = await User.findById(userId);
-        if (!user) {
-            throw new Error('User not found');
-        }
-        const accessToken = await user.generateAccessToken();
-        if (!accessToken) {
-            throw new Error('Failed to generate tokens');
-        }
-        return accessToken;
-    } catch (error) {
-        throw new Error(
-            'Something went wrong while generating access tokens' + error
         );
     }
 };
@@ -138,9 +121,18 @@ const refreshAccessToken = asyncHandler(async (req: Request, res: Response) => {
         if (incomingRefreshToken !== user?.refreshToken) {
             throw new ApiError(403, 'Refresh token is expired or used');
         }
-        const accessToken = await generateAccessToken(user._id.toString());
+        const { accessToken, refreshToken } =
+            await generateAccessAndRefreshTokens(user._id.toString());
         return res
             .status(200)
+            .cookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite:
+                    process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+                // 7 days
+                maxAge: 1000 * 60 * 60 * 24 * 7,
+            })
             .json(
                 new ApiResponse(200, { accessToken }, 'Access token refreshed')
             );
