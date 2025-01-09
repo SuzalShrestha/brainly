@@ -29,6 +29,23 @@ const generateAccessAndRefereshTokens = async (userId: string) => {
         );
     }
 };
+const generateAccessToken = async (userId: string) => {
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            throw new Error('User not found');
+        }
+        const accessToken = await user.generateAccessToken();
+        if (!accessToken) {
+            throw new Error('Failed to generate tokens');
+        }
+        return accessToken;
+    } catch (error) {
+        throw new Error(
+            'Something went wrong while generating access tokens' + error
+        );
+    }
+};
 const login = asyncHandler(async (req: Request, res: Response) => {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -53,29 +70,20 @@ const login = asyncHandler(async (req: Request, res: Response) => {
         user._id.toString()
     );
 
-    return res
-        .cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            maxAge: 1000 * 60 * 60 * 24 * 7,
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-            priority: 'high',
-        })
-        .status(200)
-        .json({
-            data: {
-                user: {
-                    _id: user._id,
-                    userName: user.userName,
-                    email: user.email,
-                    createdAt: user.createdAt,
-                    updatedAt: user.updatedAt,
-                    accessToken: accessToken,
-                    //sent to nextjs to store in cookie manually only for login
-                    refreshToken: refreshToken,
-                },
+    return res.status(200).json({
+        data: {
+            user: {
+                _id: user._id,
+                userName: user.userName,
+                email: user.email,
+                createdAt: user.createdAt,
+                updatedAt: user.updatedAt,
+                accessToken: accessToken,
+                //sent to nextjs to store in cookie manually only for login
+                refreshToken: refreshToken,
             },
-        });
+        },
+    });
 });
 const signup = asyncHandler(async (req: Request, res: Response) => {
     const { userName, password, email, name } = req.body;
@@ -130,19 +138,9 @@ const refreshAccessToken = asyncHandler(async (req: Request, res: Response) => {
         if (incomingRefreshToken !== user?.refreshToken) {
             throw new ApiError(403, 'Refresh token is expired or used');
         }
-
-        const { accessToken, refreshToken: newRefreshToken } =
-            await generateAccessAndRefereshTokens(user._id.toString());
+        const accessToken = await generateAccessToken(user._id.toString());
         return res
             .status(200)
-            .cookie('refreshToken', newRefreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                maxAge: 1000 * 60 * 60 * 24 * 7,
-                sameSite:
-                    process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-                priority: 'high',
-            })
             .json(
                 new ApiResponse(200, { accessToken }, 'Access token refreshed')
             );
@@ -174,7 +172,7 @@ const googleLogin = asyncHandler(async (req: Request, res: Response) => {
             {
                 email: googleUser.email,
                 password: googleUser.id,
-                userName: googleUser.name.toLowerCase() + googleUser.id,
+                userName: googleUser.name.toLowerCase().trim() + googleUser.id,
             },
             {
                 validateBeforeSave: false,
@@ -187,25 +185,16 @@ const googleLogin = asyncHandler(async (req: Request, res: Response) => {
     const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(
         newUser!._id.toString()
     );
-    return res
-        .cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            maxAge: 1000 * 60 * 60 * 24 * 7,
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-            priority: 'high',
-        })
-        .status(200)
-        .json({
-            data: {
-                user: {
-                    _id: newUser?._id,
-                    email: newUser?.email,
-                    accessToken: accessToken,
-                    //sent to nextjs to store in cookie manually only for login
-                    refreshToken: refreshToken,
-                },
+    return res.status(200).json({
+        data: {
+            user: {
+                _id: newUser?._id,
+                email: newUser?.email,
+                accessToken: accessToken,
+                //sent to nextjs to store in cookie manually only for login
+                refreshToken: refreshToken,
             },
-        });
+        },
+    });
 });
 export { login, signup, refreshAccessToken, googleLogin };
