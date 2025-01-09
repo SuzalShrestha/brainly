@@ -49,7 +49,7 @@ const login = asyncHandler(async (req: Request, res: Response) => {
             .json({ message: 'Invalid username or password' });
     }
     //generate access and refresh tokens
-    const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
         user._id.toString()
     );
 
@@ -174,7 +174,7 @@ const googleLogin = asyncHandler(async (req: Request, res: Response) => {
     } else {
         newUser = user;
     }
-    const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
         newUser!._id.toString()
     );
     return res.status(200).json({
